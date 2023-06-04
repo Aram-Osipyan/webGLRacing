@@ -1,5 +1,6 @@
 import Vector3 from "./Vector3";
 import Car from './car'
+import Road from "./road";
 
 const mainCanvas = document.getElementById('mainCanvas')
 mainCanvas.width = window.innerWidth
@@ -10,8 +11,6 @@ const cameraPos = new Vector3(-0.1, 0.7, 0.1);
 const cameraFront = new Vector3(33.5, -56.2, 274.0);
 const cameraUp = new Vector3(0.0, 1.0, 0.0);
 const fov = 45.0;
-
-const objects_on_scene = [];
 
 
 const lightPos = new Vector3(1.2, 1.0, 0.0);
@@ -38,6 +37,9 @@ const gameState = {
 const gl = mainCanvas.getContext('webgl2', {antialias : false});
 
 const car = new Car(gl)
+const road = new Road(gl,0,0.01);
+const road2 = new Road(gl,-100,0);
+const objectsOnScene = [car, road, road2];
 
 function run() {
     document.addEventListener('keydown', onKeyDown, false)
@@ -52,6 +54,11 @@ function run() {
     function onKeyUp(event){
         gameState.event.pressedButtonChar = '';
     }
+
+    for (const object of objectsOnScene) {
+        object.start();
+    }
+
     gameLoop();
 
 }
@@ -72,11 +79,15 @@ function gameLoop(tFrame) {
 }
 
 function update(delta) {
-    car.update(gameState.event.pressedButtonChar)
+    for (const object of objectsOnScene) {
+        object.update(gameState.event.pressedButtonChar)
+    }
 }
 
 function draw(delta) {
-    car.draw(lightPos, view, projection, cameraPos, cameraFront, cameraUp)
+    for (const object of objectsOnScene) {
+        object.draw(lightPos, view, projection, cameraPos, cameraFront, cameraUp)
+    }
 }
 function perspective(r) {
     return [

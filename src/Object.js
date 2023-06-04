@@ -101,9 +101,9 @@ class Object{
         this.bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
 
         this.cameraTarget = [0, 0, 0];
-        this.cameraPosition = [0, 0, 4];
+        this.cameraPosition = [30, 15, -15];
         this.zNear = 0.1;
-        this.zFar = 50;
+        this.zFar = 100;
 
         gl.useProgram(this.meshProgramInfo.program);
     }
@@ -194,7 +194,9 @@ class Object{
 
         const fieldOfViewRadians = this.degToRad(60);
         const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        const projection = m4.perspective(fieldOfViewRadians, aspect, this.zNear, this.zFar);
+        console.log(aspect, 'aspect')
+        const r = 1.089;
+        const projection = m4.perspective(fieldOfViewRadians, 1.5, this.zNear, this.zFar);
 
         const up = [0, 1, 0];
         // Compute the camera's matrix using look at.
@@ -208,7 +210,7 @@ class Object{
             u_view: view2,
             u_projection: projection,
             position: this.transform.position.getArray(),
-            rotation: this.transform.position.getArray(),
+            rotation: this.transform.rotation.getArray(),
             scale: this.transform.scale.getArray(),
             u_texture : this.texture
         };
@@ -444,11 +446,19 @@ class Object{
             this.handleTextureLoaded(image, texture);
         }
 
-        this.meshProgramInfo.program.samplerUniform = gl.getUniformLocation(this.meshProgramInfo.program, "u_texture");
-        gl.uniform1i(this.meshProgramInfo.program.samplerUniform,  0);
+        const samplerUniform = gl.getUniformLocation(this.meshProgramInfo.program, "u_texture");
+        gl.uniform1i(samplerUniform,  0);
         return texture
     }
 
+    perspective(r) {
+        return [
+            1,0,0,0,
+            0,1,0,0,
+            0,0,1,-1.0/r,
+            0,0,0,1
+        ];
+    }
 }
 
 export default Object;
