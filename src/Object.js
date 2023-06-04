@@ -29,9 +29,10 @@ class Object{
     constructor(textureUrl, mesh, gl) {
         this.transform = new Transform(new Vector3(0,0,0), new Vector3(1,1,1), new Vector3(0,0,0))
         this.gl = gl;
-        this.InitShader();
-        this.InitTexture(textureUrl);
+        //this.InitShader();
+
         this.SetupMesh(mesh);
+        this.InitTexture(textureUrl);
         this.gl.enable(this.gl.DEPTH_TEST)
     }
 
@@ -71,93 +72,28 @@ class Object{
 
     InitTexture(textureUrl) {
         const gl = this.gl;
-        this.texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        const level = 0;
-        const internalFormat = gl.RGBA;
-        const width = 1;
-        const height = 1;
-        const border = 0;
-        const srcFormat = gl.RGBA;
-        const srcType = gl.UNSIGNED_BYTE;
-        const pixel = new Uint8Array([0, 0, 255, 255]); // opaque blue
-        gl.texImage2D(
-            gl.TEXTURE_2D,
-            level,
-            internalFormat,
-            width,
-            height,
-            border,
-            srcFormat,
-            srcType,
-            pixel
-        );
+        //this.textureLocation = gl.getUniformLocation(this.meshProgramInfo.program, "u_texture");
+        this.textureInfo = this.loadImageAndCreateTextureInfo(textureUrl)
+        gl.bindTexture(gl.TEXTURE_2D, this.textureInfo.texture);
 
-        const image = new Image();
-        image.onload = () => {
-            gl.bindTexture(gl.TEXTURE_2D, this.texture);
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                level,
-                internalFormat,
-                srcFormat,
-                srcType,
-                image
-            );
+        // Tell the shader to get the texture from texture unit 0
+        //gl.uniform1i(this.textureLocation, 0);
 
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        };
-        image.src = textureUrl;
 
-        return this.texture;
     }
 
     SetupMesh(mesh) {
         const gl = this.gl;
-        this.ReadVectorsFromFile(mesh);
+        this.meshProgramInfo = webglUtils.createProgramInfo(gl, [vertexShaderSource, fragShaderSource]);
+        const data = this.parseOBJ(mesh);
+        console.log(data);
+        this.bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
 
-        this.vao = gl.createVertexArray();
-        this.vbo = gl.createBuffer();
-        this.ibo = gl.createBuffer();
+        this.cameraTarget = [0, 0, 0];
+        this.cameraPosition = [0, 0, 4];
+        this.zNear = 0.1;
+        this.zFar = 50;
 
-
-        gl.bindVertexArray(this.vao);
-
-        // bind vbo
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-        const verData = [];
-        for (const item of this.vertices) {
-            verData.push(item.position.x);
-            verData.push(item.position.y);
-            verData.push(item.position.z);
-
-            verData.push(item.normal.x);
-            verData.push(item.normal.y);
-            verData.push(item.normal.z);
-
-            verData.push(item.texCoords.x);
-            verData.push(item.texCoords.y);
-            //verData.push(item.texCoords.z);
-        }
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verData), gl.STATIC_DRAW);
-
-        // bind ibo
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
-
-
-        gl.enableVertexAttribArray(0);
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT,0);
-
-        gl.enableVertexAttribArray(1);
-        gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT,3 * Float32Array.BYTES_PER_ELEMENT);
-
-        gl.enableVertexAttribArray(2);
-        gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT,6 * Float32Array.BYTES_PER_ELEMENT);
-
-        //gl.bindVertexArray(0);
     }
 
     ReadVectorsFromFile(meshFile){
@@ -225,6 +161,10 @@ class Object{
         return shader
     }
 
+    degToRad(deg) {
+        return deg * Math.PI / 180;
+    }
+
     /**
      *
      * @param lightpos {Vector3}
@@ -236,6 +176,47 @@ class Object{
      */
     draw(lightpos, view, perspective_projection, cameraPos, cameraFront, cameraUp){
         const gl = this.gl;
+
+        webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+
+        const fieldOfViewRadians = this.degToRad(60);
+        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        const projection = m4.perspective(fieldOfViewRadians, aspect, this.zNear, this.zFar);
+
+        const up = [0, 1, 0];
+        // Compute the camera's matrix using look at.
+        const camera = m4.lookAt(this.cameraPosition, this.cameraTarget, up);
+
+        // Make a view matrix from the camera matrix.
+        const view2 = m4.inverse(camera);
+
+        const sharedUniforms = {
+            u_lightDirection: m4.normalize([-1, 3, 5]),
+            u_view: view2,
+            u_projection: projection,
+            position: this.transform.position.getArray(),
+            rotation: this.transform.position.getArray(),
+            scale: this.transform.scale.getArray(),
+        };
+
+        gl.useProgram(this.meshProgramInfo.program);
+
+        // calls gl.uniform
+        webglUtils.setUniforms(this.meshProgramInfo, sharedUniforms);
+
+        // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+        webglUtils.setBuffersAndAttributes(gl, this.meshProgramInfo, this.bufferInfo);
+
+        // calls gl.uniform
+        webglUtils.setUniforms(this.meshProgramInfo, {
+            u_world: m4.yRotation(2),
+            u_diffuse: [1, 0.7, 0.5, 1],
+        });
+
+        // calls gl.drawArrays or gl.drawElements
+        webglUtils.drawBufferInfo(gl, this.bufferInfo);
+        /*
         const cameraView = this.calculate_lookAt_matrix(
             cameraPos,
             new Vector3(cameraPos.x + cameraFront.x, cameraPos.y + cameraFront.y, cameraPos.z + cameraFront.z),
@@ -256,7 +237,7 @@ class Object{
         gl.bindVertexArray(this.vao);
 
         gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_INT, 0);
-        //gl.bindVertexArray(0);
+        //gl.bindVertexArray(0);*/
     }
 
     /**
@@ -307,6 +288,127 @@ class Object{
         // Return lookAt matrix as combination of translation and rotation matrix
         return viewMatrix; // Remember to read from right to left (first rotation then translation)
     }
+
+    parseOBJ(text) {
+        // because indices are base 1 let's just fill in the 0th data
+        const objPositions = [[0, 0, 0]];
+        const objTexcoords = [[0, 0]];
+        const objNormals = [[0, 0, 0]];
+
+        // same order as `f` indices
+        const objVertexData = [
+            objPositions,
+            objTexcoords,
+            objNormals,
+        ];
+
+        // same order as `f` indices
+        let webglVertexData = [
+            [],   // positions
+            [],   // texcoords
+            [],   // normals
+        ];
+
+        function addVertex(vert) {
+            const ptn = vert.split('/');
+
+            ptn.forEach(
+                /**
+                 *
+                 * @param objIndexStr {string}
+                 * @param i
+                 */
+                (objIndexStr, i) => {
+                    if (!objIndexStr) {
+                        return;
+                    }
+                    const objIndex = parseInt(objIndexStr);
+                    const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
+                    webglVertexData[i].push(...objVertexData[i][index]);
+                });
+        }
+
+        const keywords = {
+            v(parts) {
+                objPositions.push(parts.map(parseFloat));
+            },
+            vn(parts) {
+                objNormals.push(parts.map(parseFloat));
+            },
+            vt(parts) {
+                // should check for missing v and extra w?
+                objTexcoords.push(parts.map(parseFloat));
+            },
+            f(parts) {
+                const numTriangles = parts.length - 2;
+                for (let tri = 0; tri < numTriangles; ++tri) {
+                    addVertex(parts[0]);
+                    addVertex(parts[tri + 1]);
+                    addVertex(parts[tri + 2]);
+                }
+            },
+        };
+
+        const keywordRE = /(\w*)(?: )*(.*)/;
+        const lines = text.split('\n');
+        for (let lineNo = 0; lineNo < lines.length; ++lineNo) {
+            const line = lines[lineNo].trim();
+            if (line === '' || line.startsWith('#')) {
+                continue;
+            }
+            const m = keywordRE.exec(line);
+            if (!m) {
+                continue;
+            }
+            const [, keyword, unparsedArgs] = m;
+            const parts = line.split(/\s+/).slice(1);
+            const handler = keywords[keyword];
+            if (!handler) {
+                console.warn('unhandled keyword:', keyword);  // eslint-disable-line no-console
+                continue;
+            }
+            handler(parts, unparsedArgs);
+        }
+
+        return {
+            position: webglVertexData[0],
+            texcoord: webglVertexData[1],
+            normal: webglVertexData[2],
+        };
+    }
+
+    loadImageAndCreateTextureInfo(url) {
+        const gl = this.gl;
+        this.tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.tex);
+        // Fill the texture with a 1x1 blue pixel.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+            new Uint8Array([0, 0, 255, 255]));
+
+        // let's assume all images are not a power of 2
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+        this.textureInfo = {
+            width: 1,   // we don't know the size until it loads
+            height: 1,
+            texture: this.tex,
+        };
+        this.img = new Image();
+        this.img.addEventListener('load', function() {
+            textureInfo.width = img.width;
+            textureInfo.height = img.height;
+
+            gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        });
+        //requestCORSIfNotSameOrigin(img, url);
+        this.img.src = url;
+
+        return this.textureInfo;
+    }
+
 }
 
 export default Object;

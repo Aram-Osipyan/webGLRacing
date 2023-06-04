@@ -68,6 +68,7 @@ function gameLoop(tFrame) {
     update( delta );
     draw( delta );
     gameState.lastRender = tFrame;
+
 }
 
 function update(delta) {

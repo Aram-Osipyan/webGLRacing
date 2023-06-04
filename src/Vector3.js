@@ -59,6 +59,14 @@ class Vector3 {
         const z = vec1.z - vec2.z;
         return Math.sqrt(x * x + y * y + z * z);
     }
+
+    /**
+     *
+     * @returns {number[]}
+     */
+    getArray(){
+        return [this.x, this.y, this.z];
+    }
 }
 
 
