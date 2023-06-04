@@ -4,6 +4,7 @@ import Vector3 from "./Vector3";
 import Vertex from "./Vertex";
 import Transform from "./transform";
 
+
 class Object{
     /**
     * @type {WebGL2RenderingContext}
@@ -26,13 +27,22 @@ class Object{
      * @type {Transform}
      */
     transform;
+
+    /**
+     *
+     * @param textureUrl {url}
+     * @param mesh
+     * @param gl
+     */
     constructor(textureUrl, mesh, gl) {
         this.transform = new Transform(new Vector3(0,0,0), new Vector3(1,1,1), new Vector3(0,0,0))
         this.gl = gl;
         //this.InitShader();
 
         this.SetupMesh(mesh);
-        this.InitTexture(textureUrl);
+        //this.InitTexture(textureUrl);
+
+        this.registerTexture(textureUrl);
         this.gl.enable(this.gl.DEPTH_TEST)
     }
 
@@ -85,6 +95,7 @@ class Object{
     SetupMesh(mesh) {
         const gl = this.gl;
         this.meshProgramInfo = webglUtils.createProgramInfo(gl, [vertexShaderSource, fragShaderSource]);
+
         const data = this.parseOBJ(mesh);
         console.log(data);
         this.bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
@@ -94,6 +105,7 @@ class Object{
         this.zNear = 0.1;
         this.zFar = 50;
 
+        gl.useProgram(this.meshProgramInfo.program);
     }
 
     ReadVectorsFromFile(meshFile){
@@ -198,6 +210,7 @@ class Object{
             position: this.transform.position.getArray(),
             rotation: this.transform.position.getArray(),
             scale: this.transform.scale.getArray(),
+            u_texture : this.texture
         };
 
         gl.useProgram(this.meshProgramInfo.program);
@@ -213,7 +226,8 @@ class Object{
             u_world: m4.yRotation(2),
             u_diffuse: [1, 0.7, 0.5, 1],
         });
-
+        //gl.activeTexture(gl.TEXTURE0)
+        //gl.bindTexture(gl.TEXTURE_2D, this.texture);
         // calls gl.drawArrays or gl.drawElements
         webglUtils.drawBufferInfo(gl, this.bufferInfo);
         /*
@@ -407,6 +421,32 @@ class Object{
         this.img.src = url;
 
         return this.textureInfo;
+    }
+
+    handleTextureLoaded(image, texture) {
+        const gl = this.gl;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    }
+
+    registerTexture(imgId) {
+        console.log(imgId,'src')
+        const gl = this.gl;
+        let texture = this.texture = gl.createTexture();
+        const image = document.getElementById(imgId)
+
+        if (image.complete){
+            this.handleTextureLoaded(image, texture);
+        }
+
+        this.meshProgramInfo.program.samplerUniform = gl.getUniformLocation(this.meshProgramInfo.program, "u_texture");
+        gl.uniform1i(this.meshProgramInfo.program.samplerUniform,  0);
+        return texture
     }
 
 }

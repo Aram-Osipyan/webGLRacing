@@ -19,7 +19,7 @@ class Car extends Object{
     }
 
     constructor(gl) {
-        super('../assets/bus2.png', mesh, gl);
+        super("bus2", mesh, gl);
     }
 
     /**
