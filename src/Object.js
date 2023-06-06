@@ -103,7 +103,7 @@ class Object{
         this.cameraTarget = [0, 0, 0];
         this.cameraPosition = [30, 15, -15];
         this.zNear = 0.1;
-        this.zFar = 100;
+        this.zFar = 180;
 
         gl.useProgram(this.meshProgramInfo.program);
     }

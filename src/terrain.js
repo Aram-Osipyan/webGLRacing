@@ -1,23 +1,24 @@
 import Object from "./Object";
-import mesh from 'bundle-text:../assets/road.obj'
-class Road extends Object{
+import mesh from 'bundle-text:../assets/terrain.obj'
+class Terrain extends Object{
     speed = 0.2;
     constructor(gl, z, y) {
-        super('road', mesh, gl);
+        super('grass', mesh, gl);
         this.transform.position.z = z;
         this.transform.position.y = y;
     }
 
     start()
     {
-        this.transform.scale.x = 1;
-        this.transform.scale.y = 1;
-        this.transform.scale.z = 1.6;
-        this.transform.rotation.z = 3.1415;
+        this.transform.scale.x = 0.1;
+        this.transform.scale.y = 0.06;
+        this.transform.scale.z = 0.11;
+        this.transform.rotation.z = 0;
+        this.transform.position.y = -4;
     }
     update(event)
     {
-        const init_pos = -130;
+        const init_pos = -100;
         if (this.transform.position.z >= -init_pos)
         {
             this.transform.position.z = init_pos;
@@ -34,4 +35,4 @@ class Road extends Object{
     }
 }
 
-export default Road;
+export default Terrain;
