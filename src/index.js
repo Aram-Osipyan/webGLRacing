@@ -8,6 +8,7 @@ import barrelMesh from "bundle-text:../assets/Barrel.obj"
 import Terrain from "./terrain";
 import Light from "./light";
 import lightMesh from "bundle-text:../assets/Light.obj"
+import ConeObject from "./light_cone";
 
 const mainCanvas = document.getElementById('mainCanvas')
 mainCanvas.width = window.innerWidth
@@ -44,6 +45,21 @@ const gameState = {
 const gl = mainCanvas.getContext('webgl2', {antialias : false});
 
 // scene initialization
+
+const lights = [];
+for (let i = 0; i < 4; i++) {
+    const light = new Light('light', lightMesh, gl)
+    light.transform.position.z = i * 50;
+    light.transform.position.x = -15;
+    light.transform.rotation.y = Math.PI;
+
+    const light2 = new Light('light', lightMesh, gl)
+    light2.transform.position.z = i * 50;
+    light2.transform.position.x = 15;
+    //light2.transform.rotation.y = Math.PI /2
+    lights.push(light,light2)
+}
+
 const car = new Car(gl)
 const road = new Road(gl,0,0.01);
 const road2 = new Road(gl,-100,0);
@@ -59,8 +75,12 @@ const terrain = new Terrain(gl, 0, 0);
 terrain.transform.position.x = 20;
 const terrain2 = new Terrain(gl, 200, 0)
 terrain2.transform.position.x = 20;
-const light = new Light('light', lightMesh, gl)
-const objectsOnScene = [car, road, road2, elkObstacle, barrelObstacle, terrain, terrain2, light];
+
+
+
+const lightCone = new ConeObject(gl);
+lightCone.transform.position = new Vector3(10,10,10);
+const objectsOnScene = [car, road, road2, elkObstacle, barrelObstacle, terrain, terrain2, ...lights,];
 /////////////////////////////
 
 function run() {
@@ -78,6 +98,7 @@ function run() {
     }
 
     for (const object of objectsOnScene) {
+        object.lights = lights;
         object.start();
     }
 
@@ -87,7 +108,10 @@ function run() {
 
 function gameLoop(tFrame) {
     gameState.stopCycle = window.requestAnimationFrame( gameLoop )
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT );
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
@@ -96,6 +120,7 @@ function gameLoop(tFrame) {
     lastTick = nowish
     update( delta );
     draw( delta );
+
     gameState.lastRender = tFrame;
 
 }

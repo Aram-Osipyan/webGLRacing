@@ -17,6 +17,7 @@ varying float constant;
 varying vec3 Normal;
 varying vec3 FragPos;
 varying vec3 realPos;
+
 void main() {
     mat4 rotate_matr = mat4(
         1,  0,                0,            0,
@@ -41,7 +42,7 @@ void main() {
         0,0,0,1); // scale
 
     vec4 pos = scale_matr * rotate_matr * a_position + vec4(position,0);
-    realPos = pos.xyz;
+
     pos = u_projection * u_view * u_world * pos;
     gl_Position = pos;
     textcoord = a_texcoord;
@@ -49,5 +50,5 @@ void main() {
     FragPos = pos.rgb;
     vec4 n = vec4(a_normal,1) * rotate_matr;
     Normal = n.rgb;
-
+    realPos = a_position.xyz;
 }

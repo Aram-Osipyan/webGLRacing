@@ -38,8 +38,6 @@ class Car extends Object{
     update(event){
         //this.transform.rotation.y += 0.08;
 
-        console.log(this.transform.rotation.y)
-
         switch (event){
             case 'd':
                 this.transform.position.x += 0.05;
