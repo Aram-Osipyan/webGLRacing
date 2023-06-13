@@ -92,7 +92,7 @@ lightCone.transform.position = new Vector3(10,10,10);
 
 const car = new Car(gl, obstacles,
     function (){
-    alert('You lose')
+    //alert('You lose')
 
     },
     function (){

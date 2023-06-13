@@ -14,6 +14,6 @@ varying vec3 realPos;
 
 void main () {
 
-    gl_FragColor = vec4(1,0.5,0.5, pow(realPos.y, 3.0));
+    gl_FragColor = vec4(1,0.5,0.5, 0.05);
 
 }
