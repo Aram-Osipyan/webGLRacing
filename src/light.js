@@ -45,6 +45,12 @@ class Light extends Object{
         this.lightCone.transform.position = new Vector3(pos.x - 4.5 * Math.sign(pos.x), pos.y, pos.z);
         this.lightCone.transform.position.y = 4;
     }
+    setSlow() {
+        this.speed = 0.1;
+    }
+    setFast() {
+        this.speed = 0.3;
+    }
 }
 
 export default Light;

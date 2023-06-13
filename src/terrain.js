@@ -28,10 +28,10 @@ class Terrain extends Object{
         //this.speed += 0.01
     }
     setSlow() {
-        this.speed = 0.01;
+        this.speed = 0.1;
     }
     setFast() {
-        this.speed = 0.03;
+        this.speed = 0.3;
     }
 }
 

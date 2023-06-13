@@ -1,11 +1,13 @@
 import Object from './Object'
 import mesh from 'bundle-text:../assets/bus2.obj'
+import Vector3 from "./Vector3";
 
 class Car extends Object{
     initYrot = 0;
 
     _move_objects;
-
+    _setSlowEvent;
+    _isSlow = false;
     /**
      *
      * @param step
@@ -18,8 +20,17 @@ class Car extends Object{
         }
     }
 
-    constructor(gl) {
+    /**
+     *
+     * @param gl
+     * @param obstacles {Array<ElkObstacle>}
+     */
+    constructor(gl, obstacles, loseEvent, setSlowEvent, setFastEvent) {
         super("bus2", mesh, gl);
+        this._obstacles = obstacles;
+        this._loseEvent = loseEvent;
+        this._setSlowEvent = setSlowEvent;
+        this._setFastEvent = setFastEvent;
     }
     /**
      * @public
@@ -36,8 +47,7 @@ class Car extends Object{
      * @public
      */
     update(event){
-        //this.transform.rotation.y += 0.08;
-
+        // smooth movement
         switch (event){
             case 'd':
                 this.transform.position.x += 0.05;
@@ -49,6 +59,25 @@ class Car extends Object{
                 break;
         }
         this.ClampYRotate();
+
+        // obstacles
+        for (const obstacle of this._obstacles) {
+            const tempVec = this.transform.position;
+            const pos = new Vector3(tempVec.x , tempVec.y, tempVec.z - 4);
+            if (Vector3.distance(obstacle.transform.position, pos) < 2){
+                this._loseEvent();
+            }
+        }
+
+        // set slow
+
+        if(Math.abs(this.transform.position.x) > 13 ){
+            this._isSlow = true;
+            this._setSlowEvent();
+        }
+        else if(this._isSlow){
+            this._setFastEvent();
+        }
     }
 }
 

@@ -60,9 +60,11 @@ for (let i = 0; i < 4; i++) {
     lights.push(light,light2)
 }
 
-const car = new Car(gl)
+
 const road = new Road(gl,0,0.01);
 const road2 = new Road(gl,-100,0);
+
+const obstacles = [];
 
 const elkObstacle = new ElkObstacle('los', elkMesh, gl);
 elkObstacle.transform.position.y = 1.8;
@@ -70,6 +72,11 @@ elkObstacle.transform.position.y = 1.8;
 const barrelObstacle = new ElkObstacle('barrel', barrelMesh, gl);
 barrelObstacle.transform.scale = new Vector3(0.05,0.05,0.05);
 barrelObstacle.transform.position.y = 0;
+barrelObstacle.transform.position.z = 50;
+
+obstacles.push(barrelObstacle, elkObstacle);
+
+
 
 const terrain = new Terrain(gl, 0, 0);
 terrain.transform.position.x = 20;
@@ -80,6 +87,23 @@ terrain2.transform.position.x = 20;
 
 const lightCone = new ConeObject(gl);
 lightCone.transform.position = new Vector3(10,10,10);
+
+const car = new Car(gl, obstacles,
+    function (){
+    alert('You lose')
+
+    },
+    function (){
+        for (const objectOnScene of [road, road2, elkObstacle, barrelObstacle, terrain, terrain2, ...lights,]) {
+            objectOnScene.setSlow()
+        }
+    },
+    function (){
+        for (const objectOnScene of [road, road2, elkObstacle, barrelObstacle, terrain, terrain2, ...lights,]) {
+            objectOnScene.setFast()
+        }
+    })
+
 const objectsOnScene = [car, road, road2, elkObstacle, barrelObstacle, terrain, terrain2, ...lights,];
 /////////////////////////////
 

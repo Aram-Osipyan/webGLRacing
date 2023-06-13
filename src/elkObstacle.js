@@ -20,6 +20,7 @@ class ElkObstacle extends Object{
         if (this.initScale !== undefined){
             this.transform.scale = this.initScale;
         }
+        this.locateRandomly()
     }
 
     update(){
@@ -27,11 +28,25 @@ class ElkObstacle extends Object{
         if (this.transform.position.z >= -init_pos)
         {
             this.transform.position.z = init_pos;
-            const item = this.xPositions[Math.floor(Math.random()*this.xPositions.length)];
-            this.transform.position.x = item;
+            this.locateRandomly();
         }
 
         this.transform.position.z += this.speed;
+    }
+
+    /**
+     * @private
+     */
+    locateRandomly(){
+        const item = this.xPositions[Math.floor(Math.random()*this.xPositions.length)];
+        this.transform.position.x = item;
+    }
+
+    setSlow() {
+        this.speed = 0.1;
+    }
+    setFast() {
+        this.speed = 0.3;
     }
 }
 
