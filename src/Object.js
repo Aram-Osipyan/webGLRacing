@@ -27,7 +27,7 @@ class Object{
      * @type {Transform}
      */
     transform;
-
+    brightness = 1;
     /**
      *
      * @param textureUrl {url|string}
@@ -230,7 +230,8 @@ class Object{
         webglUtils.setUniforms(this.meshProgramInfo, {
             u_world: m4.yRotation(2),
             u_diffuse: [1, 0.7, 0.5, 1],
-            lights_position : this.getLightsPosition()
+            lights_position : this.getLightsPosition(),
+            brightness : this.brightness,
         });
         //console.log(this.getLightsPosition(), 'positions')
         //gl.activeTexture(gl.TEXTURE0)

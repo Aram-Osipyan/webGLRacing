@@ -15,6 +15,8 @@ mainCanvas.width = window.innerWidth
 mainCanvas.height = window.innerHeight
 let lastTick = performance.now()
 
+
+let brightness = 2;
 const cameraPos = new Vector3(-0.1, 0.1, 0.1);
 const cameraFront = new Vector3(33.5, 0, 274.0);
 const cameraUp = new Vector3(0.0, 2.0, 0.0);
@@ -151,7 +153,17 @@ function gameLoop(tFrame) {
 
 function update(delta) {
     for (const object of objectsOnScene) {
+        object.brightness = brightness;
         object.update(gameState.event.pressedButtonChar)
+    }
+    const event = gameState.event.pressedButtonChar;
+    switch (event){
+        case 'q':
+            brightness += 0.1;
+            break;
+        case 'e':
+            brightness -= 0.1;
+            break;
     }
 }
 
