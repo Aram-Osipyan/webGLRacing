@@ -35,7 +35,7 @@ class Light extends Object{
         {
             this.transform.position.z = init_pos;
             //const item = this.xPositions[Math.floor(Math.random()*this.xPositions.length)];
-            this.transform.position.x = item;
+            //this.transform.position.x = item;
         }
 
         this.transform.position.z += this.speed;

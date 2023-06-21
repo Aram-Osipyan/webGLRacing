@@ -1,5 +1,5 @@
 import Object from './Object'
-import mesh from 'bundle-text:../assets/car3.obj'
+import mesh from 'bundle-text:../assets/Tumbleweed.obj'
 import Vector3 from "./Vector3";
 
 class Car extends Object{
@@ -26,7 +26,7 @@ class Car extends Object{
      * @param obstacles {Array<ElkObstacle>}
      */
     constructor(gl, obstacles, loseEvent, setSlowEvent, setFastEvent) {
-        super("image", mesh, gl);
+        super("tumbleweed", mesh, gl);
         this._obstacles = obstacles;
         this._loseEvent = loseEvent;
         this._setSlowEvent = setSlowEvent;
@@ -36,15 +36,11 @@ class Car extends Object{
      * @public
      */
     start(){
-        this.transform.scale.x = 0.004
-        this.transform.scale.y = 0.004;
-        this.transform.scale.z = 0.004;
+        this.transform.scale.x = 0.012;
+        this.transform.scale.y = 0.012;
+        this.transform.scale.z = 0.012;
         this.transform.position.z = 10;
-        this.transform.position.y = 5;
-        this.transform.position.y = 1;
-        this.transform.rotation.y  = Math.PI
-        this.initYrot = Math.PI
-
+        this.transform.position.y = 3.5;
     }
 
     /**
@@ -55,13 +51,14 @@ class Car extends Object{
         switch (event){
             case 'd':
                 this.transform.position.x += 0.05;
-                this.transform.rotation.y = this.initYrot + 0.08;
+                this.transform.rotation.y = 0.08;
                 break;
             case 'a':
                 this.transform.position.x -= 0.05;
-                this.transform.rotation.y = this.initYrot -0.08;
+                this.transform.rotation.y = -0.08;
                 break;
         }
+        this.transform.rotation.x += this._isSlow? 0.01 : 0.025;
         this.ClampYRotate();
 
         // obstacles
@@ -80,6 +77,7 @@ class Car extends Object{
             this._setSlowEvent();
         }
         else if(this._isSlow){
+            this._isSlow = false;
             this._setFastEvent();
         }
     }

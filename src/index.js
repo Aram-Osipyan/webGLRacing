@@ -3,8 +3,8 @@ import Car from './car'
 import Road from "./road";
 import ElkObstacle from "./elkObstacle";
 
-import elkMesh from "bundle-text:../assets/los.obj"
-import barrelMesh from "bundle-text:../assets/Barrel.obj"
+import elkMesh from "bundle-text:../assets/Box_2.obj"
+import barrelMesh from "bundle-text:../assets/Tire.obj"
 import Terrain from "./terrain";
 import Light from "./light";
 import lightMesh from "bundle-text:../assets/Light.obj"
@@ -68,12 +68,13 @@ const road2 = new Road(gl,-100,0);
 
 const obstacles = [];
 
-const elkObstacle = new ElkObstacle('los', elkMesh, gl);
+const elkObstacle = new ElkObstacle('boxes', elkMesh, gl);
+elkObstacle.transform.scale = new Vector3(0.05,0.05,0.05);
 elkObstacle.transform.position.y = 1.8;
 
-const barrelObstacle = new ElkObstacle('barrel', barrelMesh, gl);
+const barrelObstacle = new ElkObstacle('tire', barrelMesh, gl);
 barrelObstacle.transform.scale = new Vector3(0.05,0.05,0.05);
-barrelObstacle.transform.position.y = 0;
+barrelObstacle.transform.position.y = 1.1;
 barrelObstacle.transform.position.z = 50;
 
 obstacles.push(barrelObstacle, elkObstacle);

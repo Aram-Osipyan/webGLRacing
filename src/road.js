@@ -1,6 +1,7 @@
 import Object from "./Object";
 import mesh from 'bundle-text:../assets/road.obj'
-class Road extends Object{
+import RoadObject from "./road_object";
+class Road extends RoadObject{
     speed = 0.2;
     constructor(gl, z, y) {
         super('road', mesh, gl);
