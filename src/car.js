@@ -26,7 +26,7 @@ class Car extends Object{
      * @param obstacles {Array<ElkObstacle>}
      */
     constructor(gl, obstacles, loseEvent, setSlowEvent, setFastEvent) {
-        super("Texture_01", mesh, gl);
+        super("image", mesh, gl);
         this._obstacles = obstacles;
         this._loseEvent = loseEvent;
         this._setSlowEvent = setSlowEvent;

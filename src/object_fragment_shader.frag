@@ -14,7 +14,7 @@ varying vec3 realPos;
 
 uniform float brightness;
 void main () {
-    vec3 lightColor = brightness * vec3(0.2,0.2,0.2);
+    vec3 lightColor = brightness * vec3(1,1,1);
     vec3 objectColor = texture2D(u_texture, textcoord).rgb;
     // ambient
     float ambient = 0.1;

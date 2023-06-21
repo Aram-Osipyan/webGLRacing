@@ -11,7 +11,7 @@ class Terrain extends Object{
     start()
     {
         this.transform.scale.x = 0.1;
-        this.transform.scale.y = 0.06;
+        this.transform.scale.y = 0.03   ;
         this.transform.scale.z = 0.11;
         this.transform.rotation.z = 0;
         this.transform.position.y = -4;

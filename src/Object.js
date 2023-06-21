@@ -341,7 +341,7 @@ class Object{
             },
             vt(parts) {
                 // should check for missing v and extra w?
-                objTexcoords.push(parts.map(parseFloat));
+                objTexcoords.push(parts.map(parseFloat).slice(0,2));
             },
             f(parts) {
                 const numTriangles = parts.length - 2;
