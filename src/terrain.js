@@ -1,7 +1,7 @@
 import Object from "./Object";
 import mesh from 'bundle-text:../assets/terrain.obj'
 class Terrain extends Object{
-    speed = 0.2;
+    speed = 0.5;
     constructor(gl, z, y) {
         super('grass', mesh, gl);
         this.transform.position.z = z;
@@ -31,7 +31,7 @@ class Terrain extends Object{
         this.speed = 0.1;
     }
     setFast() {
-        this.speed = 0.3;
+        this.speed = 0.5;
     }
 }
 

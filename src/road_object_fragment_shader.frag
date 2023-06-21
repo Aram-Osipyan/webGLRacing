@@ -45,7 +45,7 @@ void main () {
         }
     }
     //if(realPos.z < -80.0){
-        gl_FragColor *= abs(-160.0 - realPos.z)*vec4(0.01, 0.01, 0.01, 1.0);
+        gl_FragColor *= abs(-160.0 - realPos.z) * vec4(0.01, 0.01, 0.01, 1.0);
     //}
     // ---------------- </spotlight> --------------------
 }

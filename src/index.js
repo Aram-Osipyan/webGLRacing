@@ -49,7 +49,7 @@ const gl = mainCanvas.getContext('webgl2', {antialias : false});
 // scene initialization
 
 const lights = [];
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < 5; i++) {
     const light = new Light('light', lightMesh, gl)
     light.transform.position.z = i * 50;
     light.transform.position.x = -15;

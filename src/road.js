@@ -2,7 +2,7 @@ import Object from "./Object";
 import mesh from 'bundle-text:../assets/road.obj'
 import RoadObject from "./road_object";
 class Road extends RoadObject{
-    speed = 0.2;
+    speed = 0.5;
     constructor(gl, z, y) {
         super('road', mesh, gl);
         this.transform.position.z = z;
@@ -30,7 +30,7 @@ class Road extends RoadObject{
         this.speed = 0.1;
     }
     setFast() {
-        this.speed = 0.3;
+        this.speed = 0.5;
     }
 }
 

@@ -7,7 +7,7 @@ class Light extends Object{
      * @private
      * @type {number}
      */
-    speed = 0.2;
+    speed = 0.5;
     xPositions = [0,10,-10]
     constructor(id, mesh, gl) {
         super(id, mesh, gl);
@@ -49,7 +49,7 @@ class Light extends Object{
         this.speed = 0.1;
     }
     setFast() {
-        this.speed = 0.3;
+        this.speed = 0.5;
     }
 }
 

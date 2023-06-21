@@ -8,6 +8,7 @@ class Car extends Object{
     _move_objects;
     _setSlowEvent;
     _isSlow = false;
+    _isInAir = false;
     /**
      *
      * @param step
@@ -17,6 +18,12 @@ class Car extends Object{
         if (Math.abs(this.initYrot - this.transform.rotation.y) > step)
         {
             this.transform.rotation.y += Math.sign(this.initYrot - this.transform.rotation.y) * 0.005;
+        }
+    }
+    ClampYPosition(step = 0.4) {
+        if (Math.abs(this.initYpos - this.transform.position.y) > step)
+        {
+            this.transform.position.y += Math.sign(this.initYpos - this.transform.position.y) * 0.4;
         }
     }
 
@@ -31,6 +38,7 @@ class Car extends Object{
         this._loseEvent = loseEvent;
         this._setSlowEvent = setSlowEvent;
         this._setFastEvent = setFastEvent;
+
     }
     /**
      * @public
@@ -41,6 +49,7 @@ class Car extends Object{
         this.transform.scale.z = 0.012;
         this.transform.position.z = 10;
         this.transform.position.y = 3.5;
+        this.initYpos = this.transform.position.y;
     }
 
     /**
@@ -57,9 +66,13 @@ class Car extends Object{
                 this.transform.position.x -= 0.05;
                 this.transform.rotation.y = -0.08;
                 break;
+            case ' ':
+                    this.transform.position.y += 1.5;
+                break;
         }
-        this.transform.rotation.x += this._isSlow? 0.01 : 0.025;
+        this.transform.rotation.x += this._isSlow? 0.01 : 0.05;
         this.ClampYRotate();
+        this.ClampYPosition();
 
         // obstacles
         for (const obstacle of this._obstacles) {
